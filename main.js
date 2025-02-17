@@ -73,7 +73,17 @@ class Calendar {
             // Load and display task preview
             const tasks = this.loadTasks(year, month, day);
             if (tasks.length > 0) {
-                taskPreview.textContent = `${tasks.length} task${tasks.length === 1 ? '' : 's'}`;
+                const completedTasks = tasks.filter(task => task.completed).length;
+                taskPreview.innerHTML = `
+                    <div class="task-count">${tasks.length} task${tasks.length === 1 ? '' : 's'}</div>
+                    <div class="task-list-preview">
+                        ${tasks.map(task => `
+                            <div class="task-preview-item ${task.completed ? 'completed' : ''}">
+                                ${task.text}
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
             }
 
             dayElement.appendChild(dayNumber);
@@ -114,7 +124,7 @@ class Calendar {
             id: Date.now()
         });
 
-        this.saveTasks();
+        this.saveTasks(tasks);
         this.displayTasks();
         this.newTaskInput.value = '';
     }
@@ -187,6 +197,7 @@ class Calendar {
         );
         
         localStorage.setItem(key, JSON.stringify(tasksToSave));
+        this.renderCalendar(); // Update calendar view after saving
     }
 }
 
