@@ -4,172 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>To-Do Calendar</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: linear-gradient(to bottom, #e3f2fd, #bbdefb);
-            color: #333;
-        }
-
-        h1 {
-            margin: 20px 0;
-            color: #0d47a1;
-        }
-
-        .calendar {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 15px;
-            width: 90%;
-            max-width: 1000px;
-        }
-
-        .day {
-            background: #ffffff;
-            border: 2px solid #90caf9;
-            border-radius: 12px;
-            padding: 15px;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            transition: transform 0.2s;
-        }
-
-        .day:hover {
-            transform: scale(1.05);
-        }
-
-        .day-header {
-            font-weight: bold;
-            margin-bottom: 10px;
-            font-size: 1.2em;
-            color: #1565c0;
-        }
-
-        .tasks {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            width: 100%;
-        }
-
-        .tasks li {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 0.9em;
-            padding: 5px;
-            border-bottom: 1px solid #e3f2fd;
-        }
-
-        .tasks li input[type="checkbox"] {
-            margin-right: 10px;
-            transform: scale(1.2);
-        }
-
-        .save-button {
-            margin-top: 10px;
-            padding: 8px 15px;
-            background-color: #42a5f5;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.9em;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-
-        .save-button:hover {
-            background-color: #1e88e5;
-        }
-
-        .save-button:active {
-            background-color: #1565c0;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>To-Do Calendar</h1>
-    <div class="calendar" id="calendar"></div>
-
-    <script>
-        const calendarElement = document.getElementById('calendar');
-
-        const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
-        function generateCalendar() {
-            for (let i = 1; i <= 30; i++) {
-                const dayDiv = document.createElement('div');
-                dayDiv.classList.add('day');
-
-                const date = new Date(2025, 0, i); // January 2025
-                const dayHeader = document.createElement('div');
-                dayHeader.classList.add('day-header');
-                dayHeader.textContent = `${days[date.getDay()]} - Jan ${i}`;
-
-                const tasksList = document.createElement('ul');
-                tasksList.classList.add('tasks');
-                tasksList.dataset.day = i;
-
-                // Example tasks
-                const taskNames = ["Eat healthy food", "Pray", "Do homework or revise"];
-                taskNames.forEach((task, index) => {
-                    const taskItem = document.createElement('li');
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.dataset.taskIndex = index;
-                    
-                    const taskLabel = document.createElement('label');
-                    taskLabel.textContent = task;
-
-                    taskItem.appendChild(checkbox);
-                    taskItem.appendChild(taskLabel);
-                    tasksList.appendChild(taskItem);
-                });
-
-                const saveButton = document.createElement('button');
-                saveButton.classList.add('save-button');
-                saveButton.textContent = 'Save';
-                saveButton.onclick = () => saveTasks(i);
-
-                dayDiv.appendChild(dayHeader);
-                dayDiv.appendChild(tasksList);
-                dayDiv.appendChild(saveButton);
-
-                calendarElement.appendChild(dayDiv);
-
-                loadTasks(i);
-            }
-        }
-
-        function saveTasks(day) {
-            const tasksList = document.querySelector(`.tasks[data-day='${day}']`);
-            const tasksState = Array.from(tasksList.querySelectorAll('input[type="checkbox"]')).map(checkbox => checkbox.checked);
-            localStorage.setItem(`day-${day}-tasks`, JSON.stringify(tasksState));
-            alert(`Tasks for day ${day} saved!`);
-        }
-
-        function loadTasks(day) {
-            const tasksList = document.querySelector(`.tasks[data-day='${day}']`);
-            const savedTasks = JSON.parse(localStorage.getItem(`day-${day}-tasks`));
-            if (savedTasks) {
-                const checkboxes = tasksList.querySelectorAll('input[type="checkbox"]');
-                checkboxes.forEach((checkbox, index) => {
-                    checkbox.checked = savedTasks[index];
-                });
-            }
-        }
-
-        generateCalendar();
-    </script>
+    <div class="container">
+        <h1>To-Do Calendar</h1>
+        <div class="controls">
+            <button id="prevMonth" class="nav-button">←</button>
+            <h2 id="currentMonth">January 2025</h2>
+            <button id="nextMonth" class="nav-button">→</button>
+        </div>
+        <div class="weekdays">
+            <div>Sun</div>
+            <div>Mon</div>
+            <div>Tue</div>
+            <div>Wed</div>
+            <div>Thu</div>
+            <div>Fri</div>
+            <div>Sat</div>
+        </div>
+        <div class="calendar" id="calendar"></div>
+    </div>
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 id="modalDate"></h3>
+            <div class="task-input">
+                <input type="text" id="newTask" placeholder="Add new task">
+                <button id="addTask">Add</button>
+            </div>
+            <ul id="tasksList" class="tasks"></ul>
+            <button id="saveTasksBtn" class="save-button">Save Tasks</button>
+        </div>
+    </div>
+    <script type="module" src="main.js"></script>
 </body>
 </html>
